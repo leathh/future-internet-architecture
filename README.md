@@ -1,5 +1,3 @@
-"# future-internet-architecture" 
-
 # Train VGG-19 on Heterogeneous Servers Using Horovod
 
 Here you can find the project code of the assignment for Future Internet Architecture.
@@ -37,7 +35,7 @@ https://www.tecmint.com/ssh-passwordless-login-using-ssh-keygen-in-5-easy-steps/
 https://github.com/leathh/future-internet-architecture.git
 ```
 
-### Edit run.sh
+### 5. Edit run.sh and run-with-logging.sh
 
 In the run.sh file, change all occurences of USERNAME in filepaths to your own username, e.g.:
 
@@ -46,23 +44,6 @@ In the run.sh file, change all occurences of USERNAME in filepaths to your own u
 ```
 change this and save it.
 
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running it
 
