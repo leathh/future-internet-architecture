@@ -1,0 +1,46 @@
+1.
+create conda env on all servers (using yml file didn’t work):
+
+conda create -n horovod pip python=3.7
+conda activate horovod
+pip install --upgrade tensorflow
+conda install -c conda-forge openmpi
+conda install gxx_linux-64
+pip install horovod
+
+2.
+make ssh without password from both – master and client (look it up on google, might need some permission changes after adding the ssh key)
+https://www.tecmint.com/ssh-passwordless-login-using-ssh-keygen-in-5-easy-steps/ (this works)
+
+easier with https://linuxize.com/post/how-to-setup-passwordless-ssh-login/
+on server 1
+
+   ssh-keygen -t rsa
+   ssh-copy-id aSTUDENTID@IP1
+   ssh-copy-id aSTUDENTID@IP2
+
+you can check with
+   ssh aSTUDENTID@IP1
+   ssh aSTUDENTID@IP2
+
+3. 
+add “conda activate horovod” to .bashrc
+
+4.
+pull from git, I use train.py file, it downloads the dataset so might edit it later
+add public ssh to https://github.com/settings/keys
+git clone git@github.com:Kanter666/vgg19-distributed-training.git
+python vgg19-distributed-training/versionA/train.py
+
+
+5.
+here is a tricky part - you will run “horovodrun --verbose -np 2 -H IP1:1,IP2:1 -p 22 python train.py” (first server and third in this example) it will fail and give you an output like this:
+mpirun --allow-run-as-root --tag-output -np 2 -H 192.168.15.168:1,192.168.15.169:1 -bind-to none -map-by slot -mca pml ob1 -mca btl ^openib -mca plm_rsh_args "-p 22" -mca btl_tcp_if_include eth0 -x NCCL_SOCKET_IFNAME=eth0  -x CONDA_SHLVL -x LD_LIBRARY_PATH -x LS_COLORS -x CONDA_EXE -x LC_MEASUREMENT -x SSH_CONNECTION -x LESSCLOSE -x GPROF -x LC_PAPER -x LC_MONETARY -x LANG -x GXX -x LD_GOLD -x DEBUG_CPPFLAGS -x DEBUG_CFLAGS -x GCC_NM -x CONDA_PREFIX -x GCC_RANLIB -x CFLAGS -x GCC_AR -x _CE_M -x CC -x READELF -x LC_NAME -x XDG_SESSION_ID -x USER -x CXXFLAGS -x CONDA_PREFIX_1 -x STRIP -x OBJCOPY -x _CONDA_PYTHON_SYSCONFIGDATA_NAME -x QT_QPA_PLATFORMTHEME -x PWD -x HOME -x ADDR2LINE -x CONDA_PYTHON_EXE -x HOST -x SSH_CLIENT -x XDG_DATA_DIRS -x RANLIB -x OBJDUMP -x AS -x AR -x CONDA_BACKUP_HOST -x _CE_CONDA -x LC_ADDRESS -x LC_NUMERIC -x NM -x CONDA_PROMPT_MODIFIER -x SSH_TTY -x MAIL -x DEBUG_CXXFLAGS -x CXX -x TERM -x SHELL -x CXXFILT -x ELFEDIT -x SHLVL -x CPPFLAGS -x LC_TELEPHONE -x STRINGS -x LOGNAME -x DBUS_SESSION_BUS_ADDRESS -x XDG_RUNTIME_DIR -x LDFLAGS -x PATH -x LC_IDENTIFICATION -x GCC -x CONDA_DEFAULT_ENV -x SIZE -x CPP -x LD -x LESSOPEN -x LC_TIME -x _ -x HOROVOD_STALL_CHECK_TIME_SECONDS -x HOROVOD_STALL_SHUTDOWN_TIME_SECONDS -x HOROVOD_NUM_NCCL_STREAMS -x HOROVOD_MLSL_BGT_AFFINITY -x HOROVOD_GLOO_TIMEOUT_SECONDS  python train.py
+
+So what you do is change just the beginning to your anaconda path to horovod env and mpirun (if you just change your student ID it should work):
+/home/aSTUDENTID/.conda/envs/horovod/bin/mpirun --allow-run-as-root --tag-output -np 2 -H IP1:1,IP2:1 -bind-to none -map-by slot -mca pml ob1 -mca btl ^openib -mca plm_rsh_args "-p 22" -mca btl_tcp_if_include eth0 -x NCCL_SOCKET_IFNAME=eth0  -x CONDA_SHLVL -x LD_LIBRARY_PATH -x LS_COLORS -x CONDA_EXE -x LC_MEASUREMENT -x SSH_CONNECTION -x LESSCLOSE -x GPROF -x LC_PAPER -x LC_MONETARY -x LANG -x GXX -x LD_GOLD -x DEBUG_CPPFLAGS -x DEBUG_CFLAGS -x GCC_NM -x CONDA_PREFIX -x GCC_RANLIB -x CFLAGS -x GCC_AR -x _CE_M -x CC -x READELF -x LC_NAME -x XDG_SESSION_ID -x USER -x CXXFLAGS -x CONDA_PREFIX_1 -x STRIP -x OBJCOPY -x _CONDA_PYTHON_SYSCONFIGDATA_NAME -x QT_QPA_PLATFORMTHEME -x PWD -x HOME -x ADDR2LINE -x CONDA_PYTHON_EXE -x HOST -x SSH_CLIENT -x XDG_DATA_DIRS -x RANLIB -x OBJDUMP -x AS -x AR -x CONDA_BACKUP_HOST -x _CE_CONDA -x LC_ADDRESS -x LC_NUMERIC -x NM -x CONDA_PROMPT_MODIFIER -x SSH_TTY -x MAIL -x DEBUG_CXXFLAGS -x CXX -x TERM -x SHELL -x CXXFILT -x ELFEDIT -x SHLVL -x CPPFLAGS -x LC_TELEPHONE -x STRINGS -x LOGNAME -x DBUS_SESSION_BUS_ADDRESS -x XDG_RUNTIME_DIR -x LDFLAGS -x PATH -x LC_IDENTIFICATION -x GCC -x CONDA_DEFAULT_ENV -x SIZE -x CPP -x LD -x LESSOPEN -x LC_TIME -x _ -x HOROVOD_STALL_CHECK_TIME_SECONDS -x HOROVOD_STALL_SHUTDOWN_TIME_SECONDS -x HOROVOD_NUM_NCCL_STREAMS -x HOROVOD_MLSL_BGT_AFFINITY -x HOROVOD_GLOO_TIMEOUT_SECONDS  python train.py
+
+
+
+
+
