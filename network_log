@@ -1,0 +1,2 @@
+ifstat -t 30 >> tlog1.log
+
